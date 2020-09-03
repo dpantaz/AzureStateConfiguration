@@ -1,4 +1,4 @@
-configuration TestConfig
+configuration IISConfig
 {
     Node IsWebServer
     {
