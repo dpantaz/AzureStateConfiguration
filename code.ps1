@@ -1,9 +1,14 @@
+#Create new Automation Account
 New-AzAutomationAccount -Name Automation1 -ResourceGroupName rg1 -Location westeurope
 
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/dpantaz/AzureStateConfiguration/master/TestConfig.ps1 -OutFile TestConfig.ps1
+#Download sample DSC configuration that installs/removes IIS Server on Windows Server
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/dpantaz/AzureStateConfiguration/master/IISConfig.ps1 -OutFile IISConfig.ps1
 
-Import-AzAutomationDscConfiguration -AutomationAccountName "Automation1" -ResourceGroupName "rg1" -SourcePath ".\TestConfig.ps1" -Published
+#Import DSC configuration to Automation Accounts
+Import-AzAutomationDscConfiguration -AutomationAccountName Automation1 -ResourceGroupName "rg1" -SourcePath ".\IISConfig.ps1" -Published
 
-Start-AzAutomationDscCompilationJob -ConfigurationName TestConfig -ResourceGroupName rg1 -AutomationAccountName automation1
+#Compile DSC configuration
+Start-AzAutomationDscCompilationJob -ConfigurationName IISConfig -ResourceGroupName rg1 -AutomationAccountName Automation1
 
-Register-AzAutomationDscNode -AutomationAccountName automation1 -AzureVMName vm1 -ResourceGroupName rg1 -NodeConfigurationName "TestConfig.IsWebServer" -ConfigurationMode ApplyAndAutocorrect -RefreshFrequencyMins 30 -ConfigurationModeFrequencyMins 15
+#Register Azure VM as DSC managed node
+Register-AzAutomationDscNode -AutomationAccountName Automation1 -AzureVMName vm1 -ResourceGroupName rg1 -NodeConfigurationName "IISConfig.IsWebServer" -ConfigurationMode ApplyAndMonitor -RefreshFrequencyMins 30 -ConfigurationModeFrequencyMins 15
